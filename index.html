@@ -3,116 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validador Predictivo Pro - Uruguay</title>
-    <!-- Cargamos la API de Autocompletado de Google Maps -->
+    <title>Validador Interactivo Prosegur</title>
+    <!-- Cargamos la API oficial de Google Maps -->
     <script src="https://maps.googleapis.com/maps/api/js?key=&libraries=places"></script>
     <style>
         body { font-family: Arial, sans-serif; background: #eef2f7; padding: 15px; color: #333; margin: 0; }
-        .card { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); max-width: 600px; margin: auto; border-top: 6px solid #d9534f; }
-        h2 { font-size: 18px; color: #333; margin-top: 0; text-align: center; }
-        .alert { background: #fcf8e3; border: 1px solid #faebcc; padding: 12px; font-size: 13px; margin-bottom: 15px; border-radius: 5px; color: #8a6d3b; font-weight: bold; }
-        label { display: block; margin-top: 12px; font-weight: bold; font-size: 13px; }
-        input, textarea { width: 100%; padding: 10px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
-        #map { width: 100%; height: 280px; border-radius: 6px; margin-top: 15px; border: 2px solid #ccc; }
-        button { background: #5cb85c; color: white; border: none; padding: 14px; margin-top: 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
-        button:hover { background: #4cae4c; }
-        .result-box { margin-top: 15px; background: #dff0d8; border: 1px solid #d0e9c6; padding: 12px; border-radius: 5px; display: none; }
+        .card { background: #fff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); max-width: 650px; margin: auto; border-top: 6px solid #005fb2; }
+        h2 { font-size: 18px; color: #005fb2; margin-top: 0; text-align: center; }
+        .alert { background: #e8f4fd; border: 1px solid #bbeeff; padding: 10px; font-size: 12px; margin-bottom: 12px; border-radius: 5px; color: #004080; font-weight: bold; text-align: center; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; }
+        input, textarea { width: 100%; padding: 9px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; background: #f9f9f9; }
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+        #map { width: 100%; height: 340px; border-radius: 6px; margin-top: 15px; border: 2px solid #005fb2; }
+        button { background: #2e844a; color: white; border: none; padding: 14px; margin-top: 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background: #1b5e20; }
+        .result-box { margin-top: 15px; background: #eef9ee; border: 1px solid #d0e9c6; padding: 12px; border-radius: 5px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Validador Predictivo 99% Exacto - Prosegur</h2>
-    <div class="alert">⚠️ Obligatorio: Escriba la dirección y selecciónela de la lista desplegable de Google para fijar el pin exacto.</div>
+    <h2>Asistente Geográfico Inteligente - Prosegur</h2>
+    <div class="alert">🗺️ Mueva el marcador rojo directamente sobre la casa del cliente. Los campos de arriba se completarán solos.</div>
     
-    <label>Buscar Dirección Exacta en Uruguay *</label>
-    <input type="text" id="autocomplete" placeholder="Ej: Horacio García Lagos, Solymar, Canelones" autocomplete="off">
+    <label>Dirección Exacta (Calle y Número / Solar)</label>
+    <input type="text" id="calle" readonly placeholder="Se autocompletará al mover el pin...">
 
-    <label>Manzana y Solar / Número de Puerta (Opcional para referencia interna)</label>
-    <input type="text" id="detallesExtra" placeholder="Ej: Manzana 37, Solar 7">
+    <div class="row">
+        <div class="col">
+            <label>Barrio</label>
+            <input type="text" id="barrio" readonly placeholder="Barrio...">
+        </div>
+        <div class="col">
+            <label>Localidad / Balneario</label>
+            <input type="text" id="localidad" readonly placeholder="Localidad...">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <label>Departamento</label>
+            <input type="text" id="departamento" readonly placeholder="Departamento...">
+        </div>
+        <div class="col">
+            <label>Manzana / Solar (Opcional)</label>
+            <input type="text" id="mzsolar" placeholder="Ej: Mz 37, Solar 7" style="background:#fff;">
+        </div>
+    </div>
 
     <label>Observaciones (Ej: Portón blanco, timbre roto)</label>
-    <textarea id="notas" placeholder="Referencias adicionales para el técnico"></textarea>
+    <textarea id="notas" placeholder="Referencias adicionales para el técnico" style="background:#fff;"></textarea>
 
-    <!-- Mapa visual de confirmación -->
+    <!-- Mapa Interactivo -->
     <div id="map"></div>
+    <div style="font-size: 11px; color: #d9534f; text-align: center; margin-top: 5px; font-weight: bold;">🖱️ Arrastre el pin rojo en el mapa hasta la ubicación exacta de la vivienda.</div>
 
-    <button onclick="copiarLinkFinal()">✅ Copiar Link Exacto para Salesforce</button>
+    <button onclick="copiarLinkFinal()">✅ Copiar Link Completo para Salesforce</button>
 
     <div class="result-box" id="seccionResultado">
-        <label style="color: #3c763d;">Link GPS listo para Salesforce:</label>
+        <label style="color: #2e844a;">Link estructurado listo para Salesforce:</label>
         <input type="text" id="linkFinal" readonly style="background: #fff; font-weight: bold;">
     </div>
 </div>
 
 <script>
-    var map, marker, autocomplete;
-    var selectedLatLng = null;
+    var map, marker, geocoder;
+    var currentLatLng = null;
 
     function initMap() {
-        // Centro inicial en Uruguay (Canelones/Montevideo)
-        var defaultLatLon = { lat: -34.8335, lng: -55.9715 };
+        // Centro inicial predeterminado en Canelones/Solymar
+        var initialPos = { lat: -34.8325, lng: -55.9658 };
 
         map = new google.maps.Map(document.getElementById('map'), {
-            center: defaultLatLon,
+            center: initialPos,
             zoom: 15
         });
+
+        geocoder = new google.maps.Geocoder();
 
         marker = new google.maps.Marker({
             map: map,
             draggable: true,
-            position: defaultLatLon
+            position: initialPos
         });
 
-        // Actualizar coordenadas si el operador arrastra el marcador manualmente
+        // Buscar automáticamente al soltar el pin
         marker.addListener('dragend', function() {
-            selectedLatLng = marker.getPosition();
+            updateAddressFromLatLng(marker.getPosition());
         });
 
-        // Autocompletado inteligente restringido a Uruguay
-        var input = document.getElementById('autocomplete');
-        autocomplete = new google.maps.places.Autocomplete(input, {
-            componentRestrictions: { country: 'uy' },
-            fields: ['geometry', 'name', 'formatted_address']
+        map.addListener('click', function(e) {
+            marker.setPosition(e.latLng);
+            updateAddressFromLatLng(e.latLng);
         });
 
-        autocomplete.addListener('place_changed', function() {
-            var place = autocomplete.getPlace();
-            if (!place.geometry || !place.geometry.location) {
-                alert("No se encontró la ubicación exacta para esa selección.");
-                return;
+        // Cargar dirección inicial
+        updateAddressFromLatLng(initialPos);
+    }
+
+    function updateAddressFromLatLng(latlng) {
+        currentLatLng = latlng;
+        geocoder.geocode({ location: latlng }, function(results, status) {
+            if (status === "OK" && results[0]) {
+                parseAddressComponents(results[0].address_components, results[0].formatted_address);
+            } else {
+                document.getElementById('calle').value = "Ubicación seleccionada por coordenadas";
             }
-
-            // Ubicar el mapa y el pin exactamente donde eligió el operador
-            map.setCenter(place.geometry.location);
-            map.setZoom(18); // Zoom cercano a nivel de finca
-            marker.setPosition(place.geometry.location);
-            selectedLatLng = place.geometry.location;
         });
     }
 
-    // Inicializar mapa al cargar la página
+    function parseAddressComponents(components, formatted) {
+        let street = "";
+        let streetNumber = "";
+        let neighborhood = "";
+        let locality = "";
+        let administrativeArea = "";
+
+        for (let i = 0; i < components.length; i++) {
+            let types = components[i].types;
+            if (types.includes("route")) {
+                street = components[i].long_name;
+            }
+            if (types.includes("street_number")) {
+                streetNumber = components[i].long_name;
+            }
+            if (types.includes("neighborhood") || types.includes("sublocality")) {
+                neighborhood = components[i].long_name;
+            }
+            if (types.includes("locality")) {
+                locality = components[i].long_name;
+            }
+            if (types.includes("administrative_area_level_1")) {
+                administrativeArea = components[i].long_name;
+            }
+        }
+
+        document.getElementById('calle').value = (street + (streetNumber ? " " + streetNumber : "")).trim() || formatted.split(',')[0];
+        document.getElementById('barrio').value = neighborhood || "No especificado";
+        document.getElementById('localidad').value = locality || "Canelones";
+        document.getElementById('departamento').value = administrativeArea || "Canelones";
+    }
+
     window.onload = initMap;
 
     function copiarLinkFinal() {
-        if (!selectedLatLng) {
-            alert("Por favor, escriba la dirección y selecciónela de la lista desplegable de Google.");
+        if (!currentLatLng) {
+            alert("Por favor seleccione la ubicación en el mapa.");
             return;
         }
 
-        let lat = selectedLatLng.lat();
-        let lng = selectedLatLng.lng();
-        let detalles = document.getElementById('detallesExtra').value;
+        let calle = document.getElementById('calle').value;
+        let barrio = document.getElementById('barrio').value;
+        let localidad = document.getElementById('localidad').value;
+        let depto = document.getElementById('departamento').value;
+        let mzsolar = document.getElementById('mzsolar').value;
         let notas = document.getElementById('notas').value;
 
-        // Link basado en coordenadas puros (GPS real)
-        let linkGps = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+        // Generamos un enlace de Google Maps con la búsqueda formateada exacta
+        let queryTexto = `${calle}, ${barrio ? 'Barrio ' + barrio + ', ' : ''}${localidad}, ${depto}, Uruguay`;
+        if (mzsolar) queryTexto += ` (${mzsolar})`;
+        
+        let linkMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(queryTexto)}`;
 
-        document.getElementById('linkFinal').value = linkGps;
+        document.getElementById('linkFinal').value = linkMaps;
         document.getElementById('seccionResultado').style.display = 'block';
 
-        navigator.clipboard.writeText(linkGps);
-        alert("¡Link GPS exacto copiado al portapapeles! Ya puedes pegarlo en Salesforce.");
+        navigator.clipboard.writeText(linkMaps);
+        alert("¡Link estructurado copiado al portapapeles con éxito! Ya puedes pegarlo en Salesforce.");
     }
 </script>
 
