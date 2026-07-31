@@ -3,84 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generador Obligatorio de Direcciones - Prosegur</title>
+    <title>Validador Inteligente de Visitas Técnicas - Uruguay</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; color: #333; }
-        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 450px; margin: auto; border-top: 5px solid #d9534f; }
-        h2 { font-size: 16px; color: #333; margin-top: 0; }
-        .alert { background: #fcf8e3; border: 1px solid #faebcc; padding: 10px; font-size: 13px; margin-bottom: 15px; border-radius: 4px; color: #8a6d3b; }
-        label { display: block; margin-top: 12px; font-weight: bold; font-size: 13px; }
-        input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        input:invalid { border-color: #d9534f; }
-        button { background: #0275d8; color: white; border: none; padding: 12px; margin-top: 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; font-weight: bold; }
-        button:hover { background: #025aa5; }
-        .result-section { margin-top: 20px; background: #dff0d8; border: 1px solid #d0e9c6; padding: 15px; border-radius: 4px; display: none; }
-        .copy-btn { background: #5cb85c; margin-top: 10px; }
-        .copy-btn:hover { background: #4cae4c; }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 15px; color: #333; margin: 0; }
+        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; border-top: 5px solid #005fb2; }
+        h2 { font-size: 17px; color: #005fb2; margin-top: 0; text-align: center; }
+        .alert { background: #fcf8e3; border: 1px solid #faebcc; padding: 10px; font-size: 12px; margin-bottom: 12px; border-radius: 4px; color: #8a6d3b; }
+        label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .row { display: flex; gap: 10px; }
+        .col { flex: 1; }
+        button { background: #005fb2; color: white; border: none; padding: 12px; margin-top: 15px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; font-weight: bold; }
+        button:hover { background: #004080; }
+        .result-section { margin-top: 15px; background: #eef4f9; border: 1px solid #d0e9c6; padding: 12px; border-radius: 4px; display: none; }
+        .copy-btn { background: #2e844a; margin-top: 8px; }
+        .copy-btn:hover { background: #1b5e20; }
+        .map-container { margin-top: 15px; width: 100%; height: 250px; border-radius: 6px; overflow: hidden; border: 1px solid #ccc; display: none; }
+        iframe { width: 100%; height: 100%; border: 0; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Validador Obligatorio de Visitas Técnicas</h2>
-    <div class="alert">⚠️ <strong>Importante:</strong> Ningún caso puede coordinarse sin completar todos los campos obligatorios.</div>
+    <h2>Validador y Visor Geográfico - Uruguay</h2>
+    <div class="alert">⚠️ Obligatorio completar todos los datos para generar el enlace del técnico.</div>
     
-    <form id="dirForm" onsubmit="event.preventDefault(); generar();">
-        <label>Calle y Número *</label>
-        <input type="text" id="calle" placeholder="Ej: Av. Italia 2500" required>
+    <form id="dirForm" onsubmit="event.preventDefault(); generarLink();">
+        <label>Departamento *</label>
+        <select id="depto" required>
+            <option value="">Seleccione Departamento...</option>
+            <option value="Montevideo">Montevideo</option>
+            <option value="Canelones" selected>Canelones</option>
+            <option value="Maldonado">Maldonado</option>
+            <option value="Rocha">Rocha</option>
+            <option value="Colonia">Colonia</option>
+            <option value="San José">San José</option>
+            <option value="Salto">Salto</option>
+            <option value="Paysandú">Paysandú</option>
+            <option value="その他の">Otro Departamento</option>
+        </select>
 
-        <label>Barrio *</label>
-        <input type="text" id="barrio" placeholder="Ej: Malvín" required>
+        <label>Localidad / Ciudad / Balneario *</label>
+        <input type="text" id="localidad" value="Solymar (Ciudad de la Costa)" placeholder="Ej: Solymar, Lagomar, Atlántida, Montevideo" required>
 
-        <label>Localidad / Departamento *</label>
-        <input type="text" id="localidad" value="Montevideo" required>
+        <label>Calle Principal *</label>
+        <input type="text" id="calle" placeholder="Ej: Horacio García Lagos" required>
 
-        <label>Entre calles / Esquina (Ayuda al técnico)</label>
-        <input type="text" id="esquina" placeholder="Ej: Entre Aconcagua y Mississipi">
+        <div class="row">
+            <div class="col">
+                <label>Número / Solar</label>
+                <input type="text" id="numero" placeholder="Ej: Solar 7 o N° 2500">
+            </div>
+            <div class="col">
+                <label>Manzana (si aplica)</label>
+                <input type="text" id="manzana" placeholder="Ej: Mz. 37">
+            </div>
+        </div>
 
-        <label>Observaciones de la finca</label>
-        <textarea id="notas" placeholder="Ej: Casa reja blanca, timbre no anda"></textarea>
+        <label>Esquina / Entre calles</label>
+        <input type="text" id="esquina" placeholder="Ej: Entre Giannattasio y Barlomento">
 
-        <button type="submit">Generar Link Validado</button>
+        <label>Observaciones o Referencias</label>
+        <textarea id="notas" placeholder="Ej: Casa al fondo, portón negro"></textarea>
+
+        <button type="submit">Generar Link y Validar en Mapa</button>
     </form>
 
     <div class="result-section" id="seccionResultado">
-        <label style="color: #3c763d;">Link listo para copiar a Salesforce:</label>
-        <input type="text" id="linkFinal" readonly style="background: #fff; font-weight: bold; color: #2b542c;">
-        <button class="copy-btn" onclick="copiar()">Copiar al Portapapeles</button>
+        <label style="color: #005fb2;">Link listo para copiar a Salesforce:</label>
+        <input type="text" id="linkFinal" readonly style="background: #fff; font-weight: bold; color: #333;">
+        <button class="copy-btn" onclick="copiarLink()">Copiar al Portapapeles</button>
+    </div>
+
+    <div class="map-container" id="contenedorMapa">
+        <label style="margin-bottom: 5px; color: #555;">Confirmación Visual con el Cliente:</label>
+        <iframe id="mapFrame" src="" allowfullscreen></iframe>
     </div>
 </div>
 
 <script>
-function generar() {
-    let calle = document.getElementById('calle').value.trim();
-    let barrio = document.getElementById('barrio').value.trim();
+function generarLink() {
+    let depto = document.getElementById('depto').value;
     let localidad = document.getElementById('localidad').value.trim();
+    let calle = document.getElementById('calle').value.trim();
+    let numero = document.getElementById('numero').value.trim();
+    let manzana = document.getElementById('manzana').value.trim();
     let esquina = document.getElementById('esquina').value.trim();
     let notas = document.getElementById('notas').value.trim();
 
-    if(!calle || !barrio || !localidad) {
-        alert("Por favor completa los campos obligatorios.");
+    if(!depto || !localidad || !calle) {
+        alert("Por favor complete Departamento, Localidad y Calle.");
         return;
     }
 
-    // Construcción de la dirección ultra detallada
-    let textoFinal = `${calle}, Barrio ${barrio}, ${localidad}, Uruguay`;
-    if(esquina) textoFinal += ` (Esq. ${esquina})`;
-    if(notas) textoFinal += ` - Ref: ${notas}`;
+    // Estructuramos la dirección inteligente para evitar errores
+    let direccionArmada = `${calle}`;
+    if (numero) direccionArmada += ` ${numero}`;
+    if (manzana) direccionArmada += `, Manzana ${manzana}`;
+    direccionArmada += `, ${localidad}, ${depto}, Uruguay`;
+    
+    if (esquina) direccionArmada += ` (Esq. ${esquina})`;
+    if (notas) direccionArmada += ` [Ref: ${notas}]`;
 
-    let urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoFinal)}`;
+    // Generamos las URLs de Google Maps
+    let urlMapsBusqueda = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionArmada)}`;
+    let urlMapaEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(direccionArmada)}&output=embed`;
 
-    document.getElementById('linkFinal').value = urlMaps;
+    // Mostramos el resultado
+    document.getElementById('linkFinal').value = urlMapsBusqueda;
     document.getElementById('seccionResultado').style.display = 'block';
+
+    // Cargamos el mapa interactivo abajo para que el operador lo confirme con el cliente
+    let frame = document.getElementById('mapFrame');
+    frame.src = urlMapaEmbed;
+    document.getElementById('contenedorMapa').style.display = 'block';
+    
     document.getElementById('linkFinal').select();
 }
 
-function copiar() {
+function copiarLink() {
     let campo = document.getElementById("linkFinal");
     campo.select();
     navigator.clipboard.writeText(campo.value);
-    alert("¡Enlace copiado! Pégalo ahora en el campo de notas del caso en Salesforce.");
+    alert("¡Enlace copiado con éxito! Pégalo en el caso de Salesforce.");
 }
 </script>
 
