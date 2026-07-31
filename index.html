@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Obligatorio de Direcciones - Prosegur</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; color: #333; }
+        .card { background: #fff; padding: 25px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 450px; margin: auto; border-top: 5px solid #d9534f; }
+        h2 { font-size: 16px; color: #333; margin-top: 0; }
+        .alert { background: #fcf8e3; border: 1px solid #faebcc; padding: 10px; font-size: 13px; margin-bottom: 15px; border-radius: 4px; color: #8a6d3b; }
+        label { display: block; margin-top: 12px; font-weight: bold; font-size: 13px; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        input:invalid { border-color: #d9534f; }
+        button { background: #0275d8; color: white; border: none; padding: 12px; margin-top: 20px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; font-weight: bold; }
+        button:hover { background: #025aa5; }
+        .result-section { margin-top: 20px; background: #dff0d8; border: 1px solid #d0e9c6; padding: 15px; border-radius: 4px; display: none; }
+        .copy-btn { background: #5cb85c; margin-top: 10px; }
+        .copy-btn:hover { background: #4cae4c; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Validador Obligatorio de Visitas Técnicas</h2>
+    <div class="alert">⚠️ <strong>Importante:</strong> Ningún caso puede coordinarse sin completar todos los campos obligatorios.</div>
+    
+    <form id="dirForm" onsubmit="event.preventDefault(); generar();">
+        <label>Calle y Número *</label>
+        <input type="text" id="calle" placeholder="Ej: Av. Italia 2500" required>
+
+        <label>Barrio *</label>
+        <input type="text" id="barrio" placeholder="Ej: Malvín" required>
+
+        <label>Localidad / Departamento *</label>
+        <input type="text" id="localidad" value="Montevideo" required>
+
+        <label>Entre calles / Esquina (Ayuda al técnico)</label>
+        <input type="text" id="esquina" placeholder="Ej: Entre Aconcagua y Mississipi">
+
+        <label>Observaciones de la finca</label>
+        <textarea id="notas" placeholder="Ej: Casa reja blanca, timbre no anda"></textarea>
+
+        <button type="submit">Generar Link Validado</button>
+    </form>
+
+    <div class="result-section" id="seccionResultado">
+        <label style="color: #3c763d;">Link listo para copiar a Salesforce:</label>
+        <input type="text" id="linkFinal" readonly style="background: #fff; font-weight: bold; color: #2b542c;">
+        <button class="copy-btn" onclick="copiar()">Copiar al Portapapeles</button>
+    </div>
+</div>
+
+<script>
+function generar() {
+    let calle = document.getElementById('calle').value.trim();
+    let barrio = document.getElementById('barrio').value.trim();
+    let localidad = document.getElementById('localidad').value.trim();
+    let esquina = document.getElementById('esquina').value.trim();
+    let notas = document.getElementById('notas').value.trim();
+
+    if(!calle || !barrio || !localidad) {
+        alert("Por favor completa los campos obligatorios.");
+        return;
+    }
+
+    // Construcción de la dirección ultra detallada
+    let textoFinal = `${calle}, Barrio ${barrio}, ${localidad}, Uruguay`;
+    if(esquina) textoFinal += ` (Esq. ${esquina})`;
+    if(notas) textoFinal += ` - Ref: ${notas}`;
+
+    let urlMaps = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(textoFinal)}`;
+
+    document.getElementById('linkFinal').value = urlMaps;
+    document.getElementById('seccionResultado').style.display = 'block';
+    document.getElementById('linkFinal').select();
+}
+
+function copiar() {
+    let campo = document.getElementById("linkFinal");
+    campo.select();
+    navigator.clipboard.writeText(campo.value);
+    alert("¡Enlace copiado! Pégalo ahora en el campo de notas del caso en Salesforce.");
+}
+</script>
+
+</body>
+</html>
