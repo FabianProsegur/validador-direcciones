@@ -3,130 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Validador Inteligente de Visitas Técnicas - Uruguay</title>
+    <title>Validador Geográfico Pro - Uruguay</title>
+    <!-- Leaflet CSS para Mapas Interactivos Libres de Errores -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 15px; color: #333; margin: 0; }
-        .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 600px; margin: auto; border-top: 5px solid #005fb2; }
-        h2 { font-size: 17px; color: #005fb2; margin-top: 0; text-align: center; }
-        .alert { background: #fcf8e3; border: 1px solid #faebcc; padding: 10px; font-size: 12px; margin-bottom: 12px; border-radius: 4px; color: #8a6d3b; }
+        body { font-family: Arial, sans-serif; background: #eef2f7; padding: 10px; color: #333; margin: 0; }
+        .card { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); max-width: 650px; margin: auto; border-top: 6px solid #005fb2; }
+        h2 { font-size: 18px; color: #005fb2; margin-top: 0; text-align: center; }
+        .alert { background: #e8f4fd; border: 1px solid #bbeeff; padding: 10px; font-size: 12px; margin-bottom: 12px; border-radius: 5px; color: #004080; font-weight: bold; }
         label { display: block; margin-top: 10px; font-weight: bold; font-size: 13px; }
-        input, select, textarea { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 9px; margin-top: 4px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
         .row { display: flex; gap: 10px; }
         .col { flex: 1; }
-        button { background: #005fb2; color: white; border: none; padding: 12px; margin-top: 15px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 15px; font-weight: bold; }
-        button:hover { background: #004080; }
-        .result-section { margin-top: 15px; background: #eef4f9; border: 1px solid #d0e9c6; padding: 12px; border-radius: 4px; display: none; }
-        .copy-btn { background: #2e844a; margin-top: 8px; }
-        .copy-btn:hover { background: #1b5e20; }
-        .map-container { margin-top: 15px; width: 100%; height: 250px; border-radius: 6px; overflow: hidden; border: 1px solid #ccc; display: none; }
-        iframe { width: 100%; height: 100%; border: 0; }
+        #map { width: 100%; height: 320px; border-radius: 6px; margin-top: 15px; border: 2px solid #005fb2; }
+        .helper-text { font-size: 11px; color: #d9534f; margin-top: 3px; font-weight: bold; }
+        button { background: #2e844a; color: white; border: none; padding: 14px; margin-top: 15px; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; font-weight: bold; }
+        button:hover { background: #1b5e20; }
+        .result-box { margin-top: 15px; background: #eef9ee; border: 1px solid #d0e9c6; padding: 12px; border-radius: 5px; display: none; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Validador y Visor Geográfico - Uruguay</h2>
-    <div class="alert">⚠️ Obligatorio completar todos los datos para generar el enlace del técnico.</div>
+    <h2>Asistente Geográfico Inteligente - Prosegur</h2>
+    <div class="alert">💡 Busque la calle o mueva el pin directamente sobre la casa del cliente para asegurar una llegada técnica sin errores.</div>
     
-    <form id="dirForm" onsubmit="event.preventDefault(); generarLink();">
-        <label>Departamento *</label>
-        <select id="depto" required>
-            <option value="">Seleccione Departamento...</option>
-            <option value="Montevideo">Montevideo</option>
-            <option value="Canelones" selected>Canelones</option>
-            <option value="Maldonado">Maldonado</option>
-            <option value="Rocha">Rocha</option>
-            <option value="Colonia">Colonia</option>
-            <option value="San José">San José</option>
-            <option value="Salto">Salto</option>
-            <option value="Paysandú">Paysandú</option>
-            <option value="その他の">Otro Departamento</option>
-        </select>
-
-        <label>Localidad / Ciudad / Balneario *</label>
-        <input type="text" id="localidad" value="Solymar (Ciudad de la Costa)" placeholder="Ej: Solymar, Lagomar, Atlántida, Montevideo" required>
-
-        <label>Calle Principal *</label>
-        <input type="text" id="calle" placeholder="Ej: Horacio García Lagos" required>
-
-        <div class="row">
-            <div class="col">
-                <label>Número / Solar</label>
-                <input type="text" id="numero" placeholder="Ej: Solar 7 o N° 2500">
-            </div>
-            <div class="col">
-                <label>Manzana (si aplica)</label>
-                <input type="text" id="manzana" placeholder="Ej: Mz. 37">
-            </div>
+    <div class="row">
+        <div class="col">
+            <label>Departamento *</label>
+            <select id="depto">
+                <option value="Canelones" selected>Canelones</option>
+                <option value="Montevideo">Montevideo</option>
+                <option value="Maldonado">Maldonado</option>
+                <option value="Rocha">Rocha</option>
+                <option value="Colonia">Colonia</option>
+                <option value="San José">San José</option>
+                <option value="Salto">Salto</option>
+                <option value="Paysandú">Paysandú</option>
+                <option value="Otro">Otro Departamento</option>
+            </select>
         </div>
-
-        <label>Esquina / Entre calles</label>
-        <input type="text" id="esquina" placeholder="Ej: Entre Giannattasio y Barlomento">
-
-        <label>Observaciones o Referencias</label>
-        <textarea id="notas" placeholder="Ej: Casa al fondo, portón negro"></textarea>
-
-        <button type="submit">Generar Link y Validar en Mapa</button>
-    </form>
-
-    <div class="result-section" id="seccionResultado">
-        <label style="color: #005fb2;">Link listo para copiar a Salesforce:</label>
-        <input type="text" id="linkFinal" readonly style="background: #fff; font-weight: bold; color: #333;">
-        <button class="copy-btn" onclick="copiarLink()">Copiar al Portapapeles</button>
+        <div class="col">
+            <label>Localidad / Balneario *</label>
+            <input type="text" id="localidad" value="Solymar" placeholder="Ej: Solymar, Lagomar">
+        </div>
     </div>
 
-    <div class="map-container" id="contenedorMapa">
-        <label style="margin-bottom: 5px; color: #555;">Confirmación Visual con el Cliente:</label>
-        <iframe id="mapFrame" src="" allowfullscreen></iframe>
+    <label>Dirección (Calle, Manzana y Solar) *</label>
+    <input type="text" id="busquedaInput" placeholder="Ej: Horacio García Lagos, Mz 37, Solar 7">
+    <div class="helper-text">Escriba los datos y presione "Buscar en Mapa" o arrastre el marcador rojo.</div>
+    <button type="button" onclick="buscarDireccion()" style="background: #005fb2; margin-top: 8px; padding: 10px;">🔍 Buscar Dirección en el Mapa</button>
+
+    <label>Observaciones o Referencias (Portón, timbre, etc.)</label>
+    <input type="text" id="notas" placeholder="Ej: Casa al fondo, rejas blancas">
+
+    <!-- Mapa Interactivo Leaflet -->
+    <div id="map"></div>
+    <div style="font-size: 11px; color: #666; text-align: center; margin-top: 5px;">📍 Puede arrastrar el marcador rojo con el mouse hasta ubicar exactamente el domicilio exacto.</div>
+
+    <button onclick="generarLinkFinal()">✅ Generar y Copiar Link para Salesforce</button>
+
+    <div class="result-box" id="seccionResultado">
+        <label style="color: #2e844a;">Link exacto para pegar en Salesforce:</label>
+        <input type="text" id="linkFinal" readonly style="background: #fff; font-weight: bold;">
     </div>
 </div>
 
+<!-- Librería Leaflet JS para mapas interactivos -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-function generarLink() {
-    let depto = document.getElementById('depto').value;
-    let localidad = document.getElementById('localidad').value.trim();
-    let calle = document.getElementById('calle').value.trim();
-    let numero = document.getElementById('numero').value.trim();
-    let manzana = document.getElementById('manzana').value.trim();
-    let esquina = document.getElementById('esquina').value.trim();
-    let notas = document.getElementById('notas').value.trim();
+    // Inicializamos el mapa centrado en Solymar / Canelones por defecto
+    var map = L.map('map').setView([-34.8325, -55.9658], 15);
 
-    if(!depto || !localidad || !calle) {
-        alert("Por favor complete Departamento, Localidad y Calle.");
-        return;
+    // Capa de mapas abierta y ultra precisa
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Marcador arrastrable para el operador
+    var marker = L.marker([-34.8325, -55.9658], {draggable: true}).addTo(map);
+
+    // Actualiza coordenadas cuando el operador mueve el pin
+    marker.on('dragend', function(e) {
+        var coord = marker.getLatLng();
+        console.log("Nueva posición: ", coord.lat, coord.lng);
+    });
+
+    // Función para buscar direcciones usando OpenStreetMap Nominatim optimizado para Uruguay
+    function buscarDireccion() {
+        let depto = document.getElementById('depto').value;
+        let localidad = document.getElementById('localidad').value;
+        let query = document.getElementById('busquedaInput').value;
+
+        if(!query) {
+            alert("Por favor ingrese la calle, manzana o solar a buscar.");
+            return;
+        }
+
+        let consultaCompleta = `${query}, ${localidad}, ${depto}, Uruguay`;
+        let url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(consultaCompleta)}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if(data && data.length > 0) {
+                    let lat = parseFloat(data[0].lat);
+                    let lon = parseFloat(data[0].lon);
+                    
+                    map.setView([lat, lon], 17);
+                    marker.setLatLng([lat, lon]);
+                    alert("¡Ubicación encontrada! Verifique el mapa o ajuste el marcador si es necesario.");
+                } else {
+                    alert("No se encontró una coincidencia exacta por texto. Por favor, arrastre el marcador rojo manualmente hasta la ubicación exacta de la casa.");
+                }
+            })
+            .catch(error => {
+                console.error("Error en la búsqueda:", error);
+                alert("Error al buscar. Arrastre el marcador directamente en el mapa.");
+            });
     }
 
-    // Estructuramos la dirección inteligente para evitar errores
-    let direccionArmada = `${calle}`;
-    if (numero) direccionArmada += ` ${numero}`;
-    if (manzana) direccionArmada += `, Manzana ${manzana}`;
-    direccionArmada += `, ${localidad}, ${depto}, Uruguay`;
-    
-    if (esquina) direccionArmada += ` (Esq. ${esquina})`;
-    if (notas) direccionArmada += ` [Ref: ${notas}]`;
+    // Genera el link definitivo listo para que el técnico abra su GPS sin errores
+    function generarLinkFinal() {
+        let pos = marker.getLatLng();
+        let notas = document.getElementById('notas').value;
+        let datosTexto = document.getElementById('busquedaInput').value;
+        let localidad = document.getElementById('localidad').value;
+        let depto = document.getElementById('depto').value;
 
-    // Generamos las URLs de Google Maps
-    let urlMapsBusqueda = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(direccionArmada)}`;
-    let urlMapaEmbed = `https://maps.google.com/maps?q=${encodeURIComponent(direccionArmada)}&output=embed`;
+        // Creamos un link basado en coordenadas exactas (GPS puro) que abre cualquier app de navegación (Google Maps / Waze)
+        let linkGps = `https://www.google.com/maps/search/?api=1&query=${pos.lat},${pos.lng}`;
+        
+        let textoFinalParaCaso = `Ubicación GPS: ${linkGps} | Dir: ${datosTexto}, ${localidad} (${depto}) | Ref: ${notas}`;
 
-    // Mostramos el resultado
-    document.getElementById('linkFinal').value = urlMapsBusqueda;
-    document.getElementById('seccionResultado').style.display = 'block';
+        document.getElementById('linkFinal').value = linkGps;
+        document.getElementById('seccionResultado').style.display = 'block';
 
-    // Cargamos el mapa interactivo abajo para que el operador lo confirme con el cliente
-    let frame = document.getElementById('mapFrame');
-    frame.src = urlMapaEmbed;
-    document.getElementById('contenedorMapa').style.display = 'block';
-    
-    document.getElementById('linkFinal').select();
-}
-
-function copiarLink() {
-    let campo = document.getElementById("linkFinal");
-    campo.select();
-    navigator.clipboard.writeText(campo.value);
-    alert("¡Enlace copiado con éxito! Pégalo en el caso de Salesforce.");
-}
+        // Copia automática al portapapeles
+        navigator.clipboard.writeText(linkGps);
+        alert("¡Enlace de coordenadas exactas copiado al portapapeles! Ya puedes pegarlo en Salesforce.");
+    }
 </script>
 
 </body>
